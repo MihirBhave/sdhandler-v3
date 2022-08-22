@@ -1,0 +1,24 @@
+{
+  "name": "sdhandler",
+  "version": "3.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start" : "tsc && node dist/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MihirBhave/sdhandler-v3.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MihirBhave/sdhandler-v3/issues"
+  },
+  "homepage": "https://github.com/MihirBhave/sdhandler-v3#readme",
+  "dependencies": {
+    "discord.js": "^14.2.0",
+    "typescript": "^4.7.4"
+  }
+}
