@@ -3,9 +3,9 @@ import {GatewayIntentBits} from "discord.js";
 
 
 new SDClient({
-    token : "OTM3MzkxMzA5OTMxNTY5MTUy.G6Npb8.YZJi9y4LcuSMxwRnM8PU_IiHpNGTKFLZAlKER8",
-    intents : [GatewayIntentBits.Guilds],
-    compileFolder : "dist",
+    token : "Ma token",
+    intents : [GatewayIntentBits.Guilds], // The Intents
+    compileFolder : "dist", // Compile folder name ,only for TS
     testOnly : true,
     guildId : ["id1"]
 })

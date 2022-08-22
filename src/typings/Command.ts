@@ -33,7 +33,7 @@ type ExecuteFunction = (options : ExecuteOptions) => unknown;
 export type  CommandOptions = {
     name : string,
     description? : string,
-    permissions? : PermissionFlags[],
+    permissions? : PermissionResolvable,
     mode : CommandMode,
     type? : ApplicationCommandType,
     requiredRoles? : string[],
