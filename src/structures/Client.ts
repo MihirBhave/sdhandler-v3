@@ -65,8 +65,12 @@ export class SDClient extends Client{
             // Check for permissions and execute the command !
 
             try{
-                const perms = command.permissions ?? [PermissionsBitField.Flags.SendMessages];
-                if(!(perms.filter(perm => message.member?.permissions.has(perm))))
+                const defaultPerms = new PermissionsBitField(PermissionsBitField.Flags.SendMessages);
+                const perms = command.permissions ? new PermissionsBitField(command.permissions) : defaultPerms;
+
+                if (!message.member?.permissions.has(perms)) {
+                    // it means they don't have permission
+                }
 
             }
             catch(e){
