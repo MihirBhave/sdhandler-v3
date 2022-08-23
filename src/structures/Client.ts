@@ -1,15 +1,13 @@
 import {
-    ApplicationCommandData,
-    ApplicationCommandDataResolvable,
-    ApplicationCommandType,
+    ApplicationCommandData, ApplicationCommandType,
     Client,
-    Collection, Message, PermissionResolvable, PermissionsBitField
+    Collection, Message, PermissionsBitField
 } from "discord.js";
-import type {SdhandlerOptions} from "../typings/Sdhandler";
-import * as path from "path";
-import type {CommandOptions} from "../typings/Command";
 import * as fs from "fs";
-import {CommandMode} from "./enums";
+import * as path from "path";
+import type { CommandOptions } from "../typings/Command";
+import type { SdhandlerOptions } from "../typings/Sdhandler";
+import { CommandMode } from "./enums";
 
 const weirdArt : string= `${"|\n".repeat(10)}\t${""}`
 
@@ -43,6 +41,7 @@ export class SDClient extends Client{
     private async start(token : string){
         await this.login(token).then(null);
         this.registerCommands().then(null);
+        this.startHandler();
     }
 
     private async importFile(path : string){
@@ -51,6 +50,7 @@ export class SDClient extends Client{
 
     private async startHandler(){
         this.on("messageCreate" , async(message: Message) => {
+
             if(message.author.bot) return;
             // Check for prefix !
             const prefix = this.customData.prefix?.filter(p => message.content.startsWith(p));
@@ -65,10 +65,10 @@ export class SDClient extends Client{
             // Check for permissions and execute the command !
 
             try{
-                const defaultPerms = new PermissionsBitField(PermissionsBitField.Flags.SendMessages);
-                const perms = command.permissions ? new PermissionsBitField(command.permissions) : defaultPerms;
+                const perms = new PermissionsBitField(command.permissions ?? PermissionsBitField.Flags.SendMessages);
 
                 if (!message.member?.permissions.has(perms)) {
+                    return console.log('person doesnt have perm!')
                     // it means they don't have permission
                 }
 
@@ -76,6 +76,8 @@ export class SDClient extends Client{
             catch(e){
                  message.reply({content : "There was some error while trying to run this command !"}).then(null);
             }
+
+            await command.execute({ client: this, channel: message.channel, member: message.member!, message })
 
         } )
     }
