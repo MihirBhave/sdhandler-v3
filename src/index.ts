@@ -1,13 +1,15 @@
-import {SDClient} from "./structures/Client";
-import {GatewayIntentBits} from "discord.js";
+import { GatewayIntentBits } from "discord.js";
+import { SDClient } from "./structures/Client";
 
 
 new SDClient({
-    token : "Ma token",
-    intents : [GatewayIntentBits.Guilds], // The Intents
+    token : "TOKEN!",
+    intents : [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages], // The Intents
     compileFolder : "dist", // Compile folder name ,only for TS
     testOnly : true,
-    guildId : ["id1"]
+    prefix: ['!'],
+    guildId : ["991194621763919971"]
 })
 
-export {SDClient};
+export { SDClient };
+
