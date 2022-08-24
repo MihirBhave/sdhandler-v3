@@ -3,7 +3,7 @@ import { SDClient } from "./structures/Client";
 
 
 new SDClient({
-    token : "MTAwNDAwNjQwMjYzMDYzMTQ2NQ.GDwLVm.M4ozwByfCFVSe-ov-lJOt3BK9wiaKaHEWNk1dA",
+    token : "TOKEN",
     intents : [GatewayIntentBits.Guilds, GatewayIntentBits.MessageContent, GatewayIntentBits.GuildMessages], // The Intents
     compileFolder : "dist", // Compile folder name ,only for TS
     testOnly : false,
