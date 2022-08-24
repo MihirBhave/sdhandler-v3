@@ -1,15 +1,23 @@
 import {
-    ApplicationCommandData, ApplicationCommandType,
-    Client,
-    Collection, Message, PermissionsBitField
+    ApplicationCommandData,
+    ApplicationCommandType,
+    ChatInputCommandInteraction,
+    Client, ClientEvents,
+    Collection,
+    CommandInteractionOptionResolver,
+    GuildMember,
+    Message,
+    MessageContextMenuCommandInteraction,
+    PermissionsBitField,
+    UserContextMenuCommandInteraction
 } from "discord.js";
 import * as fs from "fs";
 import * as path from "path";
-import type { CommandOptions } from "../typings/Command";
-import type { SdhandlerOptions } from "../typings/Sdhandler";
-import { CommandMode } from "./enums";
+import type {CommandOptions} from "../typings/Command";
+import type {Event} from './Event';
+import type {SdhandlerOptions} from "../typings/Sdhandler";
+import {CommandMode} from "./enums";
 
-const weirdArt : string= `${"|\n".repeat(10)}\t${""}`
 
 export class SDClient extends Client{
     commands : Collection<string, CommandOptions> = new Collection<string, CommandOptions>();
@@ -40,8 +48,9 @@ export class SDClient extends Client{
     }
     private async start(token : string){
         await this.login(token).then(null);
+        await this.startEvents();
         this.registerCommands().then(null);
-        this.startHandler();
+        await this.startHandler();
     }
 
     private async importFile(path : string){
@@ -62,14 +71,32 @@ export class SDClient extends Client{
             const command = this.commands.get((cmd as string));
             if(!command) return;
 
+            if(command.mode === CommandMode.Slash ) return;
             // Check for permissions and execute the command !
 
             try{
+
                 const perms = new PermissionsBitField(command.permissions ?? PermissionsBitField.Flags.SendMessages);
 
-                if (!message.member?.permissions.has(perms)) {
-                    return console.log('person doesnt have perm!')
-                    // it means they don't have permission
+                if (message.member?.permissions.has(perms)) {
+                    await command.execute({message : message , client : this , member : message.member , channel : message.channel , args : args});
+                }
+
+                else{
+                    const roleIds = command.requiredRoles!;
+                    if(roleIds){
+                        const hasRole = roleIds.filter((roleId) => message.member?.roles.cache.has(roleId));
+
+                        if(hasRole.length > 0){
+                            await command.execute({message : message , client : this , member : message.member! , channel : message.channel , args : args});
+                        }
+                        else{
+                            await message.reply({content : "You do not have permission to run this command !"}).then((msg) => setTimeout(() => msg.delete(), 5000)).catch(null);
+                        }
+                    }
+                    else{
+                        await message.reply({content : "You do not have permission to run this command !"}).then((msg) => setTimeout(() => msg.delete(), 5000)).catch(null);
+                    }
                 }
 
             }
@@ -77,9 +104,91 @@ export class SDClient extends Client{
                  message.reply({content : "There was some error while trying to run this command !"}).then(null);
             }
 
-            await command.execute({ client: this, channel: message.channel, member: message.member!, message })
-
         } )
+
+        this.on("interactionCreate" , async(interaction) => {
+            if(interaction.isCommand()){
+                const command = this.commands.get(interaction.commandName);
+                if(!command) return ;
+
+                if(!command.type) command.type = ApplicationCommandType.ChatInput;
+                const member = interaction.member as GuildMember;
+                const permissions = new PermissionsBitField(command.permissions ?? [PermissionsBitField.Flags.SendMessages]);
+                switch (command.type){
+                    case ApplicationCommandType.ChatInput:
+                        if(member.permissions.has(permissions)){
+                            await command.execute({client : this , member : (interaction.member as GuildMember) , channel : interaction.channel! , interaction : (interaction as ChatInputCommandInteraction) , options : (interaction.options as CommandInteractionOptionResolver)});
+                            break;
+                        }
+                        else{
+                            const roleIds = command.requiredRoles;
+                            if(!roleIds) {
+                                await interaction.reply({content : "You do not have the required permissions to run this command !" , ephemeral : true}).catch(null);
+                                break;
+                            }
+                            const hasRole = roleIds?.filter(roleId => member.roles.cache.has(roleId));
+
+                            if(hasRole!.length > 0){
+                                await command.execute({client : this , member : (interaction.member as GuildMember) , channel : interaction.channel! , interaction : (interaction as ChatInputCommandInteraction) , options : (interaction.options as CommandInteractionOptionResolver)});
+                                break;
+                            }
+                            else{
+                                await interaction.reply({content : "You do not have the required permissions to run this command !" , ephemeral : true}).catch(null);
+                                break;
+                            }
+                        }
+                        break;
+
+                    case ApplicationCommandType.User:
+                        if(member.permissions.has(permissions)){
+                            await command.execute({client : this , member : (interaction.member as GuildMember) , channel : interaction.channel! , interaction : (interaction as ChatInputCommandInteraction) , options : (interaction.options as CommandInteractionOptionResolver)});
+                            break;
+                        }
+                        else{
+                            const roleIds = command.requiredRoles;
+                            if(!roleIds) {
+                                await interaction.reply({content : "You do not have the required permissions to run this command !" , ephemeral : true}).catch(null);
+                                break;
+                            }
+                            const hasRole = roleIds?.filter(roleId => member.roles.cache.has(roleId));
+
+                            if(hasRole!.length > 0){
+                                await command.execute({client : this , member : (interaction.member as GuildMember) , channel : interaction.channel! , interaction : (interaction as UserContextMenuCommandInteraction)});
+                                break;
+                            }
+                            else{
+                                await interaction.reply({content : "You do not have the required permissions to run this command !" , ephemeral : true}).catch(null);
+                                break;
+                            }
+                        }
+                        break;
+
+                    case ApplicationCommandType.Message:
+                        if(member.permissions.has(permissions)){
+                            await command.execute({client : this , member : (interaction.member as GuildMember) , channel : interaction.channel! , interaction : (interaction as ChatInputCommandInteraction) , options : (interaction.options as CommandInteractionOptionResolver)});
+                            break;
+                        }
+                        else{
+                            const roleIds = command.requiredRoles;
+                            if(!roleIds) {
+                                await interaction.reply({content : "You do not have the required permissions to run this command !" , ephemeral : true}).catch(null);
+                                break;
+                            }
+                            const hasRole = roleIds?.filter(roleId => member.roles.cache.has(roleId));
+
+                            if(hasRole!.length > 0){
+                                await command.execute({client : this , member : (interaction.member as GuildMember) , channel : interaction.channel! , interaction : (interaction as MessageContextMenuCommandInteraction)});
+                                break;
+                            }
+                            else{
+                                await interaction.reply({content : "You do not have the required permissions to run this command !" , ephemeral : true}).catch(null);
+                                break;
+                            }
+                        }
+                        break;
+                }
+            }
+        })
     }
 
     private async registerSlash(commands : ApplicationCommandData[]){
@@ -109,6 +218,20 @@ export class SDClient extends Client{
         }
     }
 
+    private async startEvents(){
+        if(!(fs.lstatSync(this.customData.eventsPath!))) return;
+        if(!((fs.lstatSync(this.customData.eventsPath!)).isDirectory())) return ;
+
+        const eventFiles = (fs.readdirSync(`${this.customData.eventsPath}`)).filter(file => file.endsWith(".js"));
+        if(eventFiles.length === 0) return ;
+        console.log("Events \n");
+        for(const eventFile of eventFiles){
+            const event: Event<keyof ClientEvents> = await this.importFile(path.join(this.customData.eventsPath! , eventFile));
+            this.on(event.event, event.run);
+            console.log(`${event.event} : ✅\n`);
+        }
+
+    }
     private async registerCommands(){
         // Some checks.
         if(!fs.lstatSync(`${this.customData.commandsPath}`)) throw new Error(`[-] ${this.customData.commandsPath} is not a valid path !`)

@@ -1,17 +1,18 @@
 import type {
-    BaseInteraction,
-    CommandInteractionOption,
     CommandInteractionOptionResolver,
     GuildMember,
     Message,
     PermissionResolvable,
     TextBasedChannel,
-    ApplicationCommandType, ApplicationCommandData, ApplicationCommandOptionData, PermissionFlags
+    ApplicationCommandType,
+    ApplicationCommandOptionData,
+    ChatInputCommandInteraction,
+    UserContextMenuCommandInteraction,
+    MessageContextMenuCommandInteraction,
 } from "discord.js";
 
 import type {SDClient} from "../structures/Client";
 import type{CommandMode} from "../structures/enums";
-import {PermissionsBitField} from "discord.js";
 
 interface InitOptions {
     client : SDClient,
@@ -20,7 +21,7 @@ type InitFunction = (options : InitOptions) => unknown;
 interface ExecuteOptions{
     client : SDClient,
     message? : Message,
-    interaction? : BaseInteraction,
+    interaction? : ChatInputCommandInteraction | MessageContextMenuCommandInteraction | UserContextMenuCommandInteraction,
     options? : CommandInteractionOptionResolver,
     args? : string[],
     member : GuildMember,
