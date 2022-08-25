@@ -28,12 +28,11 @@
 ``` bash
  npm i sdhandler
 ```
-<br>
 
 <p>Check the <a href="https://sudo-dragon.gitbook.io/sdhandler-v3/">guide</a> out for information.</p>
-<p>Join our <a href="https://discord.com/invite/536Ex6WCMG">support server</a> if you need help or any issue arises.</p>
 
 ## Support
+<p>Join our <a href="https://discord.com/invite/536Ex6WCMG">support server</a> if you need help or any issue arises.</p>
 
 <h3> Contribute </h3>
     <ul>
