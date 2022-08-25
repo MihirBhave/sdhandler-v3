@@ -8,6 +8,7 @@ new SDClient({
     compileFolder : "dist", // Compile folder name ,only for TS
     testOnly : false,
     prefix: ['!'],
+    buttonsDir : "Buttons"
 })
 
 export { SDClient };

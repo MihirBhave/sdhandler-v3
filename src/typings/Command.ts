@@ -17,7 +17,7 @@ import type{CommandMode} from "../structures/enums";
 interface InitOptions {
     client : SDClient,
 }
-type InitFunction = (options : InitOptions) => unknown;
+type InitFunction = (options : InitOptions) => any;
 interface ExecuteOptions{
     client : SDClient,
     message? : Message,
@@ -27,7 +27,7 @@ interface ExecuteOptions{
     member : GuildMember,
     channel : TextBasedChannel,
 }
-type ExecuteFunction = (options : ExecuteOptions) => unknown;
+type ExecuteFunction = (options : ExecuteOptions) => any;
 
 // Command Data Options
 

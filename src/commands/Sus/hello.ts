@@ -1,6 +1,14 @@
 import {Command} from "../../structures/Command";
-import {ApplicationCommandType, PermissionsBitField} from "discord.js";
+import {
+    ApplicationCommandType,
+    ButtonBuilder,
+    PermissionsBitField,
+    ButtonStyle,
+    ActionRowBuilder,
+    MessageActionRowComponent, MessageActionRowComponentBuilder, GuildMember
+} from "discord.js";
 import {CommandMode} from "../../structures/enums";
+import message from "../../events/message";
 
 export default new Command({
     name : "sudo",
@@ -9,8 +17,23 @@ export default new Command({
     permissions : [PermissionsBitField.Flags.Administrator],
     type : ApplicationCommandType.Message,
     requiredRoles : ["1012005494954659911"],
-    async execute({message, interaction }){
-        //return message?.reply({content : "Hey there !! SUdo sudo"})
-        message?.reply({content : "Hiii"})
+    async init({client}){
+        client.on('messageCreate' , async(message) => {
+            console.log(message.content)
+        })
+    },
+    async execute({message, interaction  , client , member}){
+
+        const row = new ActionRowBuilder()
+            .addComponents(
+                new ButtonBuilder()
+                    .setCustomId('something')
+                    .setLabel('Primary')
+                    .setStyle(ButtonStyle.Primary),
+            );
+        const data = await client.basicMemberInfo(member);
+        console.log(data)
+        await interaction!.reply({ content: 'Pong!', components: [(row as ActionRowBuilder<MessageActionRowComponentBuilder>)] });
+
     }
 })

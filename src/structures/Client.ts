@@ -1,6 +1,6 @@
 import {
     ApplicationCommandData,
-    ApplicationCommandType,
+    ApplicationCommandType, ButtonInteraction,
     ChatInputCommandInteraction,
     Client, ClientEvents,
     Collection,
@@ -17,11 +17,14 @@ import type {CommandOptions} from "../typings/Command";
 import type {Event} from './Event';
 import type {SdhandlerOptions} from "../typings/Sdhandler";
 import {CommandMode} from "./enums";
+import type {ButtonOptions} from "../typings/Button";
 
 
 export class SDClient extends Client{
-    commands : Collection<string, CommandOptions> = new Collection<string, CommandOptions>();
-    customData : SdhandlerOptions
+    private commands : Collection<string, CommandOptions> = new Collection<string, CommandOptions>();
+    customData : SdhandlerOptions;
+    buttonData : Collection<string, ButtonOptions> = new Collection<string, ButtonOptions>();
+
     constructor(customData : SdhandlerOptions) {
         super({
             intents : customData.intents,
@@ -50,6 +53,7 @@ export class SDClient extends Client{
         await this.login(token).then(null);
         await this.startEvents();
         this.registerCommands().then(null);
+        await this.registerButtons().then(null);
         await this.startHandler();
     }
 
@@ -58,6 +62,15 @@ export class SDClient extends Client{
     }
 
     private async startHandler(){
+        // Start all the inits first !
+        this.commands.map(async(command) => {
+            if(command.init){
+                await command.init({client : this})
+            }
+        })
+
+        // Listen for Commands now !
+
         this.on("messageCreate" , async(message: Message) => {
 
             if(message.author.bot) return;
@@ -101,6 +114,7 @@ export class SDClient extends Client{
 
             }
             catch(e){
+                console.log(e)
                  message.reply({content : "There was some error while trying to run this command !"}).then(null);
             }
 
@@ -137,7 +151,7 @@ export class SDClient extends Client{
                                 break;
                             }
                         }
-                        break;
+
 
                     case ApplicationCommandType.User:
                         if(member.permissions.has(permissions)){
@@ -161,7 +175,6 @@ export class SDClient extends Client{
                                 break;
                             }
                         }
-                        break;
 
                     case ApplicationCommandType.Message:
                         if(member.permissions.has(permissions)){
@@ -185,8 +198,15 @@ export class SDClient extends Client{
                                 break;
                             }
                         }
-                        break;
                 }
+            }
+
+            // Check if it is  a Button Interaction.
+            else if(interaction.isButton()){
+                const button = this.buttonData.get(interaction.customId);
+                if(!button) return ;
+
+                await button.run({client : this , interaction : (interaction as ButtonInteraction)});
             }
         })
     }
@@ -281,7 +301,7 @@ export class SDClient extends Client{
             // Filter the data !
             this.commands.forEach(command => {
 
-                if(command.mode === CommandMode.BOTH || command.mode === CommandMode.Slash){
+                if(command.mode === CommandMode.Both || command.mode === CommandMode.Slash){
 
                     if(command.type === ApplicationCommandType.User || command.type === ApplicationCommandType.Message){
 
@@ -309,5 +329,41 @@ export class SDClient extends Client{
             // Call the registerSlash Function here !
             this.registerSlash(slashCommands).then(null);
         }
+    }
+
+    private async registerButtons(){
+        if(!fs.lstatSync(this.customData.buttonsPath!)) return ;
+        if(!(fs.lstatSync(this.customData.buttonsPath!).isDirectory())) return;
+
+        const buttonFiles = fs.readdirSync(this.customData.buttonsPath!).filter(file => file.endsWith(".js"));
+
+        if(buttonFiles.length === 0) return;
+        console.log("\nButtons")
+        for(const file of buttonFiles){
+            const buttonFileData  : ButtonOptions = await this.importFile(path.join(this.customData.buttonsPath! , file));
+
+            this.buttonData.set(buttonFileData.name , buttonFileData);
+            console.log(`Loaded ${this.buttonData.size} button(s) !`)
+        }
+    }
+
+    // Methods for Enhancing User Experience !
+
+    public returnCommands(){
+        // Returns the Collection of all commands !
+
+        return this.commands;
+    }
+
+    public async basicMemberInfo(member : GuildMember){
+        const basicInfo = {
+            "User ID" : member.id,
+            "Username" : member.user.username,
+            "Guild ID " : member.guild.name,
+            "Roles " :  member.roles.cache.map(async role => role.name),
+            "Avatar URL" : `${member.user.avatarURL({forceStatic : false})}`,
+        }
+
+        return basicInfo;
     }
 }
