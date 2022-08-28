@@ -1,8 +1,9 @@
 {
   "name": "sdhandler",
-  "version": "3.0.0",
-  "description": "",
-  "main": "index.js",
+  "version": "3.0.1",
+  "description": "A discord.js command handler",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "build" : "rm -rf dist/ && tsc"
   },
@@ -13,9 +14,15 @@
     "type": "git",
     "url": "git+https://github.com/MihirBhave/sdhandler-v3.git"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "handler",
+    "commandhandler",
+    "NodeJS",
+    "Typescript",
+    "Discord"
+  ],
+  "author": "Mihir Bhave",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/MihirBhave/sdhandler-v3/issues"
   },

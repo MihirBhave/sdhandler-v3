@@ -239,7 +239,7 @@ export class SDClient extends Client{
     }
 
     private async startEvents(){
-        if(!(fs.lstatSync(this.customData.eventsPath!))) return;
+        if(!(fs.existsSync(this.customData.eventsPath!))) return;
         if(!((fs.lstatSync(this.customData.eventsPath!)).isDirectory())) return ;
 
         const eventFiles = (fs.readdirSync(`${this.customData.eventsPath}`)).filter(file => file.endsWith(".js"));
@@ -254,7 +254,7 @@ export class SDClient extends Client{
     }
     private async registerCommands(){
         // Some checks.
-        if(!fs.lstatSync(`${this.customData.commandsPath}`)) throw new Error(`[-] ${this.customData.commandsPath} is not a valid path !`)
+        if(!fs.existsSync(`${this.customData.commandsPath}`)) throw new Error(`[-] ${this.customData.commandsPath} is not a valid path !`)
         if(!(fs.lstatSync(`${this.customData.commandsPath}`).isDirectory())) throw new Error(`[-] ${this.customData.commandsPath} is not a Directory !`)
 
         const contents = fs.readdirSync(`${this.customData.commandsPath}`);
@@ -332,7 +332,7 @@ export class SDClient extends Client{
     }
 
     private async registerButtons(){
-        if(!fs.lstatSync(this.customData.buttonsPath!)) return ;
+        if(!fs.existsSync(this.customData.buttonsPath!)) return ;
         if(!(fs.lstatSync(this.customData.buttonsPath!).isDirectory())) return;
 
         const buttonFiles = fs.readdirSync(this.customData.buttonsPath!).filter(file => file.endsWith(".js"));
