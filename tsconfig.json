@@ -10,7 +10,7 @@
     "importsNotUsedAsValues": "error",
     "moduleResolution": "Node",
     "skipLibCheck": true,
-    "declaration": false,
+    "declaration": true,
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
     "outDir": "dist"
