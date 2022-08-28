@@ -32,7 +32,7 @@
 <p>Check the <a href="https://sudo-dragon.gitbook.io/sdhandler-v3/">guide</a> out for information.</p>
 
 ## Support
-<p>Join our <a href="https://discord.com/invite/536Ex6WCMG">support server</a> if you need help or any issue arises.</p>
+<p>Join our <a href="https://discord.com/invite/536Ex6WCMG">support server</a> if you need help or any general code help.</p>
 
 <h3> Contribute </h3>
     <ul>
