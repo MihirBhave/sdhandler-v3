@@ -37,6 +37,7 @@ export class SDClient extends Client{
         if(!this.customData.commandsDir) this.customData.commandsDir = "commands";
         if(!this.customData.eventsDir) this.customData.eventsDir = "events";
         if(!this.customData.buttonsDir) this.customData.buttonsDir = "buttons";
+        if(!this.customData.prefix) this.customData.prefix = ["!"]
 
         if(this.customData.compileFolder){
             this.customData.commandsPath = path.join(process.cwd() ,`${this.customData.compileFolder}`,`${this.customData.commandsDir}`) ?? path.join(process.cwd() , `${this.customData.compileFolder}`,"commands");
@@ -50,7 +51,7 @@ export class SDClient extends Client{
         }
     }
     private async start(token : string){
-        await this.login(token).then(null);
+        await this.login(token).then(() => console.log(`Logged in as ${this.user!.username}#${this.user!.discriminator}`));
         await this.startEvents();
         this.registerCommands().then(null);
         await this.registerButtons().then(null);
@@ -62,17 +63,10 @@ export class SDClient extends Client{
     }
 
     private async startHandler(){
-        // Start all the inits first !
-        this.commands.map(async(command) => {
-            if(command.init){
-                await command.init({client : this})
-            }
-        })
 
         // Listen for Commands now !
 
         this.on("messageCreate" , async(message: Message) => {
-
             if(message.author.bot) return;
             // Check for prefix !
             const prefix = this.customData.prefix?.filter(p => message.content.startsWith(p));
@@ -81,7 +75,7 @@ export class SDClient extends Client{
             const args : string[] = message.content.slice(prefix[0].length).split(/ +/);
             const cmd = args?.shift()?.toLowerCase();
 
-            const command = this.commands.get((cmd as string));
+            const command = this.commands.get((cmd as string)) || this.commands.find(c => Boolean(c.aliases?.includes(cmd!)));
             if(!command) return;
 
             if(command.mode === CommandMode.Slash ) return;
@@ -325,7 +319,12 @@ export class SDClient extends Client{
 
                                   }
             })
-
+            // Start up all the inits !
+            this.commands.map(async(command)=> {
+                if(command.init){
+                    await command.init({client : this})
+                }
+            })
             // Call the registerSlash Function here !
             this.registerSlash(slashCommands).then(null);
         }
@@ -359,8 +358,8 @@ export class SDClient extends Client{
         const basicInfo = {
             "User ID" : member.id,
             "Username" : member.user.username,
-            "Guild ID " : member.guild.name,
-            "Roles " :  member.roles.cache.map(async role => role.name),
+            "Guild ID " : member.guild.id,
+            "Roles " :  member.roles.cache.map(role => role.name),
             "Avatar URL" : `${member.user.avatarURL({forceStatic : false})}`,
         }
 

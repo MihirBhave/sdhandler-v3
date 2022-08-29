@@ -1,11 +1,12 @@
 {
   "name": "sdhandler",
-  "version": "3.0.1",
+  "version": "3.0.2",
   "description": "A discord.js command handler",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build" : "rm -rf dist/ && tsc"
+    "build" : "rm -rf dist/ && tsc",
+    "start": "tsc && node dist/index.js"
   },
   "files": [
     "dist"
