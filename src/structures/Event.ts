@@ -1,5 +1,8 @@
-import type { ClientEvents } from 'discord.js';
+import type { Awaitable, ClientEvents } from "discord.js";
 
 export class Event<Key extends keyof ClientEvents> {
-    constructor(public event: Key, public run: (...args: ClientEvents[Key]) => any) {}
+  constructor(
+    public event: Key,
+    public run: (...args: ClientEvents[Key]) => Awaitable<void>
+  ) {}
 }

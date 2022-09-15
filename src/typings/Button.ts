@@ -1,14 +1,14 @@
-import type{SDClient} from "../structures/Client";
-import type{ButtonInteraction} from "discord.js";
+import type { SDClient } from "../structures/Client";
+import type { Awaitable, ButtonInteraction } from "discord.js";
 
-interface ButtonRunOptions{
-    client : SDClient,
-    interaction : ButtonInteraction,
+interface ButtonRunOptions {
+  client: SDClient;
+  interaction: ButtonInteraction;
 }
 
-type ButtonRunFunction = (options : ButtonRunOptions) => any;
+type ButtonRunFunction = (options: ButtonRunOptions) => Awaitable<void>;
 
 export type ButtonOptions = {
-    name : string,
-    run : ButtonRunFunction
-}
+  name: string;
+  run: ButtonRunFunction;
+};
